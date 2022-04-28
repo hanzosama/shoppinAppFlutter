@@ -7,8 +7,9 @@ import '../pages/product_detail_page.dart';
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final product = Provider.of<Product>(context);
-    return ClipRRect(
+//Using Consumer widget to get the data and create the view
+    return Consumer<Product>(
+      builder: (context, product, child) => ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: GridTile(
           child: GestureDetector(
@@ -46,6 +47,8 @@ class ProductItem extends StatelessWidget {
               onPressed: () {},
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
