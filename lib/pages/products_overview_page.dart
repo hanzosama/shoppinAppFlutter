@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../pages/cart_page.dart';
+import '../providers/cart_provider.dart';
+import '../widgets/badge.dart';
 import '../widgets/product_grid.dart';
 
 enum FilterOptions {
@@ -40,6 +45,20 @@ class _ProductsOverviewPageState extends State<ProductsOverviewPage> {
                 value: FilterOptions.All,
               ),
             ],
+          ),
+          Consumer<Cart>(
+            builder: (_, carts, ch) {
+              return Badge(
+                child: ch,
+                value: carts.itemCount.toString(),
+              );
+            },
+            child: IconButton(
+              icon: Icon(Icons.shopping_cart),
+              onPressed: () {
+                Navigator.of(context).pushNamed(CartPage.routeName);
+              },
+            ),
           )
         ],
       ),

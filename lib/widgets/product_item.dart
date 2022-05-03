@@ -3,10 +3,12 @@ import 'package:provider/provider.dart';
 
 import '../models/product.dart';
 import '../pages/product_detail_page.dart';
+import '../providers/cart_provider.dart';
 
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final cart = Provider.of<Cart>(context, listen: false);
 //Using Consumer widget to get the data and create the view
     return Consumer<Product>(
       builder: (context, product, child) => ClipRRect(
@@ -44,7 +46,9 @@ class ProductItem extends StatelessWidget {
                 Icons.shopping_cart,
                 color: Theme.of(context).accentColor,
               ),
-              onPressed: () {},
+              onPressed: () {
+                cart.addItem(product.id, product.price, product.title);
+              },
             ),
           ),
         ),
