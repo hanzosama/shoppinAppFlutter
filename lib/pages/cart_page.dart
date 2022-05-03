@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/cart_provider.dart' show Cart;
+import '../providers/orders_provider.dart';
 import '../widgets/cart_item.dart';
 
 class CartPage extends StatelessWidget {
   static const routeName = '/cart_page';
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
     final cart = Provider.of<Cart>(context);
     return Scaffold(
       appBar: AppBar(title: Text('Your Cart')),
@@ -27,7 +28,7 @@ class CartPage extends StatelessWidget {
                     Spacer(),
                     Chip(
                       label: Text(
-                        '\$${cart.totalAmount}',
+                        '\$${cart.totalAmount.toStringAsFixed(2)}',
                         style: TextStyle(
                             color: Theme.of(context)
                                 .primaryTextTheme
@@ -41,7 +42,11 @@ class CartPage extends StatelessWidget {
                         'ORDER NOW',
                         style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Provider.of<Orders>(context, listen: false).addOrder(
+                            cart.items.values.toList(), cart.totalAmount);
+                        cart.clearCart();
+                      },
                     )
                   ],
                 )),
