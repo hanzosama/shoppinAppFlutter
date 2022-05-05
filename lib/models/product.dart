@@ -1,6 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter_complete_guide/models/http_exception.dart';
+import 'package:http/http.dart' as http;
 
 class Product with ChangeNotifier {
+  static const _baseURL =
+      'https://shopappflutter-d0738-default-rtdb.firebaseio.com/';
+
   final String id;
   final String title;
   final String description;
@@ -17,8 +24,22 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  void toggleFavoriteStatus() {
+  void toggleFavoriteStatus() async {
+    final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
+    try {
+      final reponse = await http.patch(_baseURL + 'products/$id.json',
+          body: json.encode({
+            'isFavorite': isFavorite,
+          }));
+
+      if (reponse.statusCode >= 400) {
+        throw HttpException('Could not be posible');
+      }
+    } catch (error) {
+      isFavorite = oldStatus;
+      notifyListeners();
+    }
   }
 }
