@@ -9,7 +9,7 @@ class UserProductItem extends StatelessWidget {
   final String title;
   final String imageURL;
 
-  UserProductItem(this.id,this.title, this.imageURL);
+  UserProductItem(this.id, this.title, this.imageURL);
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +17,9 @@ class UserProductItem extends StatelessWidget {
       title: Text(title),
       leading: CircleAvatar(
         backgroundImage: NetworkImage(imageURL),
+        onBackgroundImageError: (_, error) {
+          print(error);
+        },
       ),
       trailing: SizedBox(
         height: 100,
@@ -25,14 +28,15 @@ class UserProductItem extends StatelessWidget {
           children: [
             IconButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(EditProductPage.routeName, arguments: id);
+                Navigator.of(context)
+                    .pushNamed(EditProductPage.routeName, arguments: id);
               },
               icon: Icon(Icons.edit),
               color: Theme.of(context).primaryColor,
             ),
             IconButton(
               onPressed: () {
-                Provider.of<Products>(context,listen: false).deleteProduct(id);
+                Provider.of<Products>(context, listen: false).deleteProduct(id);
               },
               icon: Icon(Icons.delete),
               color: Theme.of(context).errorColor,

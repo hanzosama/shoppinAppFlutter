@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../pages/cart_page.dart';
 import '../providers/cart_provider.dart';
+import '../providers/products_provider.dart';
 import '../widgets/badge.dart';
 import '../widgets/drawer.dart';
 import '../widgets/product_grid.dart';
@@ -19,6 +20,34 @@ class ProductsOverviewPage extends StatefulWidget {
 
 class _ProductsOverviewPageState extends State<ProductsOverviewPage> {
   var showFavoriteOnly = false;
+  var _isInit = true;
+  var _isLoading = false;
+
+  @override
+  void initState() {
+    //Provider.of<Products>(context, listen: false).fetchAndSetProducts();
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      Provider.of<Products>(
+        context,
+      ).fetchAndSetProducts().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,10 +92,12 @@ class _ProductsOverviewPageState extends State<ProductsOverviewPage> {
           )
         ],
       ),
-      body: ProductsGrid(showFavoriteOnly),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductsGrid(showFavoriteOnly),
       drawer: AppDrawer(),
     );
   }
 }
-
-
