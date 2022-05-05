@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/http_exception.dart';
 import '../models/product.dart';
 
 class Products with ChangeNotifier {
   static const _baseURL =
-      'https://shopappflutter-d0738-default-rtdb.firebaseio.com/products.json';
+      'https://shopappflutter-d0738-default-rtdb.firebaseio.com/';
 
   List<Product> _items = [
     /*Product(
@@ -53,7 +54,7 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     try {
-      final response = await http.post(_baseURL,
+      final response = await http.post(_baseURL + 'products.json',
           body: json.encode(
             {
               'title': product.title,
@@ -78,17 +79,40 @@ class Products with ChangeNotifier {
     }
   }
 
-  void updateProduct(String id, Product product) {
+  Future<void> updateProduct(String id, Product product) async {
     final index = _items.indexWhere((element) => element.id == id);
     if (index >= 0) {
+      await http.patch(_baseURL + 'products/$id.json',
+          body: json.encode(
+            {
+              'title': product.title,
+              'description': product.description,
+              'imageUrl': product.imageUrl,
+              'price': product.price,
+            },
+          ));
+
       _items[index] = product;
       notifyListeners();
     }
   }
 
-  void deleteProduct(String id) {
-    _items.removeWhere((element) => element.id == id);
+  Future<void> deleteProduct(String id) async {
+    final existinProductIndex =
+        _items.indexWhere((element) => element.id == id);
+    var existinProduct = _items[existinProductIndex];
+    _items.removeAt(existinProductIndex);
     notifyListeners();
+    final response = await http.delete(_baseURL + 'products/$id.json');
+    if (response.statusCode >= 400) {
+      //Handling the error, the rolback process is activated
+      // Creating in memory rollback mechanism
+      _items.insert(existinProductIndex, existinProduct);
+      notifyListeners();
+      throw HttpException("Could not delete product");
+    }
+
+    existinProduct = null;
   }
 
   Product findById(String id) {
@@ -97,7 +121,7 @@ class Products with ChangeNotifier {
 
   Future<void> fetchAndSetProducts() async {
     try {
-      final response = await http.get(_baseURL);
+      final response = await http.get(_baseURL + 'products.json');
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
       extractedData.forEach((prodId, prodData) {

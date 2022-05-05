@@ -85,7 +85,13 @@ class _EditProductPageState extends State<EditProductPage> {
       });
       if (_editedProduct.id != null) {
         Provider.of<Products>(context, listen: false)
-            .updateProduct(_editedProduct.id, _editedProduct);
+            .updateProduct(_editedProduct.id, _editedProduct)
+            .then((_) {
+          setState(() {
+            _isLoading = false;
+          });
+          Navigator.of(context).pop();
+        });
       } else {
         //Using future syntax
         Provider.of<Products>(context, listen: false)
