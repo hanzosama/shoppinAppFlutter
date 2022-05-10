@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_complete_guide/pages/user_products_page.dart';
+
 import 'package:provider/provider.dart';
 
 import './pages/auth_page.dart';
@@ -12,6 +12,8 @@ import 'pages/product_detail_page.dart';
 import './pages/products_overview_page.dart';
 import './providers/products_provider.dart';
 import 'providers/orders_provider.dart';
+import 'pages/splash_screen_page.dart';
+import 'pages/user_products_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,14 +26,18 @@ class MyApp extends StatelessWidget {
           create: (ctx) => AuthProvider(),
         ),
         ChangeNotifierProxyProvider<AuthProvider, Products>(
-          update: (ctx, authProv, previousProducts) => Products(authProv.token,authProv.userId,
+          update: (ctx, authProv, previousProducts) => Products(
+              authProv.token,
+              authProv.userId,
               previousProducts == null ? [] : previousProducts.items),
         ),
         ChangeNotifierProvider(
           create: (ctx) => Cart(),
         ),
         ChangeNotifierProxyProvider<AuthProvider, Orders>(
-          update: (ctx, authProv, previousOrders) => Orders(authProv.token, authProv.userId,
+          update: (ctx, authProv, previousOrders) => Orders(
+              authProv.token,
+              authProv.userId,
               previousOrders == null ? [] : previousOrders.orders),
         ),
       ],
@@ -42,7 +48,15 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.purple,
               accentColor: Colors.deepOrange,
               fontFamily: 'Lato'),
-          home: authProv.isAuth ? ProductsOverviewPage() : AuthPage(),
+          home: authProv.isAuth
+              ? ProductsOverviewPage()
+              : FutureBuilder(
+                  future: authProv.tryAutologin(),
+                  builder: (ctx, autSnapResult) =>
+                      autSnapResult.connectionState == ConnectionState.waiting
+                          ? SplashScreenPage()
+                          : AuthPage(),
+                ),
           routes: {
             ProducDetailPage.routeName: (context) => ProducDetailPage(),
             CartPage.routeName: (context) => CartPage(),

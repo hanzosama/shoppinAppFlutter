@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/models/http_exception.dart';
 import 'package:flutter_complete_guide/security/secrets.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
   static final baseUrl = 'https://identitytoolkit.googleapis.com/v1/accounts:';
@@ -11,6 +13,7 @@ class AuthProvider with ChangeNotifier {
   String _token;
   DateTime _expDate;
   String _userId;
+  Timer _authTimer;
 
   bool get isAuth {
     return token != null;
@@ -48,7 +51,15 @@ class AuthProvider with ChangeNotifier {
       _userId = responseData['localId'];
       _expDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseData['expiresIn'])));
+      _autoLogout();
       notifyListeners();
+      final userData = json.encode({
+        'token': _token,
+        'userId': _userId,
+        'expDate': _expDate.toIso8601String()
+      });
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('userData', userData);
     } catch (error) {
       throw error;
     }
@@ -62,10 +73,45 @@ class AuthProvider with ChangeNotifier {
     return _authenticate(email, password, 'signInWithPassword');
   }
 
-  void logout() {
+  Future<void> logout() async {
     _token = null;
     _expDate = null;
     _userId = null;
+    if (_authTimer != null) {
+      _authTimer.cancel();
+      _authTimer = null;
+    }
     notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('userData');
+  }
+
+  void _autoLogout() {
+    if (_authTimer != null) {
+      _authTimer.cancel();
+    }
+    final timeToExpire = _expDate.difference(DateTime.now()).inSeconds;
+    _authTimer = Timer(Duration(seconds: timeToExpire), logout);
+  }
+
+  Future<bool> tryAutologin() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('userData')) {
+      return false;
+    }
+    final userDataString =
+        json.decode(prefs.getString('userData')) as Map<String, dynamic>;
+
+    final expDate = DateTime.parse(userDataString['expDate']);
+
+    if (!expDate.isAfter(DateTime.now())) {
+      return false;
+    }
+    _token = userDataString['token'];
+    _userId = userDataString['userId'];
+    _expDate = expDate;
+    notifyListeners();
+    _autoLogout();
+    return true;
   }
 }
