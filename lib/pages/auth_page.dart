@@ -122,9 +122,9 @@ class _AuthCardState extends State<AuthCard>
       parent: _controllerAnimation,
       curve: Curves.fastOutSlowIn,
     ));
-    _heightAnimantion.addListener(() {
-      setState(() {});
-    });
+    // _heightAnimantion.addListener(() {
+    //   setState(() {});
+    // });
   }
 
   @override
@@ -231,11 +231,15 @@ class _AuthCardState extends State<AuthCard>
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
-      child: Container(
-        height: _heightAnimantion.value.height,
-        constraints: BoxConstraints(minHeight: _heightAnimantion.value.height),
-        width: deviceSize.width * 0.75,
-        padding: EdgeInsets.all(16.0),
+      child: AnimatedBuilder(
+        animation: _heightAnimantion,
+        builder: (ctx, child) => Container(
+            height: _heightAnimantion.value.height,
+            constraints:
+                BoxConstraints(minHeight: _heightAnimantion.value.height),
+            width: deviceSize.width * 0.75,
+            padding: EdgeInsets.all(16.0),
+            child: child),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -314,5 +318,6 @@ class _AuthCardState extends State<AuthCard>
         ),
       ),
     );
+    ;
   }
 }
