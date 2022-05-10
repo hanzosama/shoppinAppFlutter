@@ -3,12 +3,14 @@ import 'package:provider/provider.dart';
 
 import '../models/product.dart';
 import '../pages/product_detail_page.dart';
+import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
 
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context, listen: false);
+    final authProv = Provider.of<AuthProvider>(context, listen: false);
 //Using Consumer widget to get the data and create the view
     return Consumer<Product>(
       builder: (context, product, child) => ClipRRect(
@@ -34,7 +36,7 @@ class ProductItem extends StatelessWidget {
               ),
               color: Theme.of(context).accentColor,
               onPressed: () {
-                product.toggleFavoriteStatus();
+                product.toggleFavoriteStatus(authProv.token);
               },
             ),
             title: Text(

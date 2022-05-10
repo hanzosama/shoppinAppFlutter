@@ -44,6 +44,10 @@ class Products with ChangeNotifier {
     ),*/
   ];
 
+  final String authToken;
+
+  Products(this.authToken, this._items);
+
   List<Product> get items {
     return [..._items];
   }
@@ -54,16 +58,17 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     try {
-      final response = await http.post(_baseURL + 'products.json',
-          body: json.encode(
-            {
-              'title': product.title,
-              'description': product.description,
-              'imageUrl': product.imageUrl,
-              'price': product.price,
-              'isFavorite': product.isFavorite,
-            },
-          ));
+      final response =
+          await http.post(_baseURL + 'products.json?auth=$authToken',
+              body: json.encode(
+                {
+                  'title': product.title,
+                  'description': product.description,
+                  'imageUrl': product.imageUrl,
+                  'price': product.price,
+                  'isFavorite': product.isFavorite,
+                },
+              ));
 
       final storedProduct = json.decode(response.body);
       final newProduct = Product(
@@ -82,7 +87,7 @@ class Products with ChangeNotifier {
   Future<void> updateProduct(String id, Product product) async {
     final index = _items.indexWhere((element) => element.id == id);
     if (index >= 0) {
-      await http.patch(_baseURL + 'products/$id.json',
+      await http.patch(_baseURL + 'products/$id.json?auth=$authToken',
           body: json.encode(
             {
               'title': product.title,
@@ -103,7 +108,8 @@ class Products with ChangeNotifier {
     var existinProduct = _items[existinProductIndex];
     _items.removeAt(existinProductIndex);
     notifyListeners();
-    final response = await http.delete(_baseURL + 'products/$id.json');
+    final response =
+        await http.delete(_baseURL + 'products/$id.json?auth=$authToken');
     if (response.statusCode >= 400) {
       //Handling the error, the rolback process is activated
       // Creating in memory rollback mechanism
@@ -121,7 +127,8 @@ class Products with ChangeNotifier {
 
   Future<void> fetchAndSetProducts() async {
     try {
-      final response = await http.get(_baseURL + 'products.json');
+      final response =
+          await http.get(_baseURL + 'products.json?auth=$authToken');
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       if (extractedData == null) {
         return;

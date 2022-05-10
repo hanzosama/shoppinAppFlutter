@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/pages/user_products_page.dart';
 import 'package:provider/provider.dart';
 
+import './pages/auth_page.dart';
+import './providers/auth_provider.dart';
 import 'pages/edit_product_page.dart';
 import 'pages/orders_page.dart';
 import 'pages/cart_page.dart';
@@ -19,29 +21,36 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (ctx) => Products(),
+          create: (ctx) => AuthProvider(),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, Products>(
+          update: (ctx, authProv, previousProducts) => Products(authProv.token,
+              previousProducts == null ? [] : previousProducts.items),
         ),
         ChangeNotifierProvider(
           create: (ctx) => Cart(),
         ),
-        ChangeNotifierProvider(
-          create: (ctx) => Orders(),
-        )
+        ChangeNotifierProxyProvider<AuthProvider, Orders>(
+          update: (ctx, authProv, previousOrders) => Orders(authProv.token,
+              previousOrders == null ? [] : previousOrders.orders),
+        ),
       ],
-      child: MaterialApp(
-        title: 'MyShop',
-        theme: ThemeData(
-            primarySwatch: Colors.purple,
-            accentColor: Colors.deepOrange,
-            fontFamily: 'Lato'),
-        home: ProductsOverviewPage(),
-        routes: {
-          ProducDetailPage.routeName: (context) => ProducDetailPage(),
-          CartPage.routeName: (context) => CartPage(),
-          OrdersPage.routeName: (context) => OrdersPage(),
-          UserProductsPage.routeName: (context) => UserProductsPage(),
-          EditProductPage.routeName: (context) => EditProductPage(),
-        },
+      child: Consumer<AuthProvider>(
+        builder: (context, authProv, _) => MaterialApp(
+          title: 'MyShop',
+          theme: ThemeData(
+              primarySwatch: Colors.purple,
+              accentColor: Colors.deepOrange,
+              fontFamily: 'Lato'),
+          home: authProv.isAuth ? ProductsOverviewPage() : AuthPage(),
+          routes: {
+            ProducDetailPage.routeName: (context) => ProducDetailPage(),
+            CartPage.routeName: (context) => CartPage(),
+            OrdersPage.routeName: (context) => OrdersPage(),
+            UserProductsPage.routeName: (context) => UserProductsPage(),
+            EditProductPage.routeName: (context) => EditProductPage(),
+          },
+        ),
       ),
     );
   }

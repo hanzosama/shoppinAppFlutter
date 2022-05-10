@@ -24,12 +24,12 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  void toggleFavoriteStatus() async {
+  void toggleFavoriteStatus(String autToken) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
     try {
-      final reponse = await http.patch(_baseURL + 'products/$id.json',
+      final reponse = await http.patch(_baseURL + 'products/$id.json?auth=$autToken',
           body: json.encode({
             'isFavorite': isFavorite,
           }));
