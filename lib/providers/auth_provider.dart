@@ -2,11 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/models/http_exception.dart';
+import 'package:flutter_complete_guide/security/secrets.dart';
 import 'package:http/http.dart' as http;
 
 class AuthProvider with ChangeNotifier {
-  static final API_KEY = 'AIzaSyCnTlTIxOxTmqEcSoj-5MBAcOYYYAoE64Y';
-
   static final baseUrl = 'https://identitytoolkit.googleapis.com/v1/accounts:';
 
   String _token;
@@ -26,15 +25,20 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
+  String get userId {
+    return _userId;
+  }
+
   Future<void> _authenticate(
       String email, String password, String methodName) async {
     try {
-      final response = await http.post(baseUrl + methodName + '?key=$API_KEY',
-          body: json.encode({
-            'email': email,
-            'password': password,
-            'returnSecureToken': true,
-          }));
+      final response =
+          await http.post(baseUrl + methodName + '?key=$FIRE_BASE_APY_KEY',
+              body: json.encode({
+                'email': email,
+                'password': password,
+                'returnSecureToken': true,
+              }));
       final responseData = json.decode(response.body);
 
       if (responseData['error'] != null) {

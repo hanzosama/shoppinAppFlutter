@@ -24,15 +24,15 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  void toggleFavoriteStatus(String autToken) async {
+  void toggleFavoriteStatus(String autToken, String userId) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
     try {
-      final reponse = await http.patch(_baseURL + 'products/$id.json?auth=$autToken',
-          body: json.encode({
-            'isFavorite': isFavorite,
-          }));
+      final reponse = await http.put(_baseURL + 'userFavorites/$userId/$id.json?auth=$autToken',
+          body: json.encode(
+            isFavorite,
+          ));
 
       if (reponse.statusCode >= 400) {
         throw HttpException('Could not be posible');
