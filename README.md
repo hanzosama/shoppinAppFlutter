@@ -1,16 +1,17 @@
-# shop_app
+# Shop App Flutter
 
-A new Flutter project.
+This application shows basic implementation of flutter features. This was based on [FLUTTER & DARK COMPLETE GUIDE COURSE - Maximilian Schwarzmüller](https://www.udemy.com/course/learn-flutter-dart-to-build-ios-android-apps/)
 
-## Getting Started
+## Features
+- Multiplattform support (iOS, Android, Web)
+- API Calls
+- SharePreferences
+- Firebase - RTDB and Authentication
+- Material UI (Cupertino is not applyed)
+## Demo
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+|  Plattform |   |
+|---|---|
+|  web |  <img src="quickShopAppDemoWeb.gif" width="500" height="500" /> |
+|  Android | <img src="quickShopAppDemoAndroid.gif" width="300" height="500" />  |
+|  iOS | <img src="quickShopAppDemoiOS.gif" width="300" height="500" />  |
